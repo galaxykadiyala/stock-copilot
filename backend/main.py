@@ -25,6 +25,7 @@ def analyze_ticker(ticker: str):
 
         return {
             "ticker": ticker.upper(),
+            "resolved_ticker": raw["resolved_ticker"],
             "name": raw["name"],
             "price": round(raw["price"], 2),
             "high_52w": round(raw["high_52w"], 2) if raw["high_52w"] else None,
