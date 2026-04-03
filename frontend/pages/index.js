@@ -1,4 +1,11 @@
 import { useState } from 'react'
+import StockOverview from '../components/StockOverview'
+import TrendCard from '../components/TrendCard'
+import PriceChart from '../components/PriceChart'
+import RecommendationCard from '../components/RecommendationCard'
+import DipSignalCard from '../components/DipSignalCard'
+import Watchlist from '../components/Watchlist'
+import { useWatchlist } from '../hooks/useWatchlist'
 
 function SignalPill({ label, value, color }) {
   return (
@@ -12,11 +19,6 @@ function SignalPill({ label, value, color }) {
 function Divider() {
   return <span className="text-gray-700 select-none">|</span>
 }
-import StockOverview from '../components/StockOverview'
-import TrendCard from '../components/TrendCard'
-import PriceChart from '../components/PriceChart'
-import RecommendationCard from '../components/RecommendationCard'
-import DipSignalCard from '../components/DipSignalCard'
 
 const CURRENCY_SYMBOL = { USD: '$', INR: '₹' }
 
@@ -26,7 +28,9 @@ export default function Home() {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [addedConfirm, setAddedConfirm] = useState(false)
 
+  const { watchlist, addTicker, removeTicker } = useWatchlist()
   const currencySymbol = data ? (CURRENCY_SYMBOL[data.currency] ?? data.currency) : '$'
 
   const analyze = async () => {
@@ -36,6 +40,7 @@ export default function Home() {
     setLoading(true)
     setError(null)
     setData(null)
+    setAddedConfirm(false)
     try {
       const res = await fetch(`http://localhost:8000/analyze?ticker=${symbol}`)
       const json = await res.json()
@@ -45,6 +50,14 @@ export default function Home() {
       setError(e.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleAddToWatchlist = () => {
+    const added = addTicker(data.resolved_ticker)
+    if (added) {
+      setAddedConfirm(true)
+      setTimeout(() => setAddedConfirm(false), 3000)
     }
   }
 
@@ -114,7 +127,7 @@ export default function Home() {
               </div>
             )}
 
-            {/* Key Signal Strip */}
+            {/* Key Signal Strip + Add to Watchlist */}
             <div className="flex flex-wrap items-center gap-2 bg-gray-900 border border-gray-800 rounded-xl px-5 py-3 text-sm">
               <SignalPill
                 label="Trend"
@@ -145,6 +158,25 @@ export default function Home() {
                 value={data.recommendation}
                 color={data.dip_type === 'strong' ? 'text-green-400' : data.dip_type === 'danger' ? 'text-red-400' : 'text-yellow-400'}
               />
+
+              {/* Add to Watchlist */}
+              <div className="ml-auto flex items-center gap-2">
+                {addedConfirm && (
+                  <span className="text-green-400 text-xs font-medium">Added to watchlist</span>
+                )}
+                {watchlist.includes(data.resolved_ticker) && !addedConfirm ? (
+                  <span className="text-gray-500 text-xs">In watchlist</span>
+                ) : (
+                  !addedConfirm && (
+                    <button
+                      onClick={handleAddToWatchlist}
+                      className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg text-gray-300 hover:text-white transition-colors"
+                    >
+                      + Add to Watchlist
+                    </button>
+                  )
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -177,6 +209,12 @@ export default function Home() {
             Enter a ticker above to begin analysis
           </div>
         )}
+
+        {/* Watchlist — always visible */}
+        <div className="mt-8">
+          <Watchlist watchlist={watchlist} removeTicker={removeTicker} />
+        </div>
+
       </div>
     </div>
   )
