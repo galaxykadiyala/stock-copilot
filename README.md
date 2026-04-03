@@ -12,31 +12,48 @@ A rule-based stock research tool. Enter any ticker and get instant trend analysi
 
 ---
 
-## Setup
+## Setup & Running
 
-### Backend
+You need two terminals open at the same time.
 
+### Terminal 1 — Backend
+
+First time only:
 ```bash
 cd backend
 python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+```
+
+Every time:
+```bash
+cd backend
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 uvicorn main:app --reload
 ```
 
 Runs at `http://localhost:8000`
 
-### Frontend
+### Terminal 2 — Frontend
 
+First time only:
 ```bash
 cd frontend
 npm install
+```
+
+Every time:
+```bash
+cd frontend
 npm run dev
 ```
 
 Runs at `http://localhost:3000`
 
-> Both must be running at the same time.
+Then open **http://localhost:3000** in your browser.
+
+> Both terminals must stay running while you use the app.
 
 ---
 
@@ -68,8 +85,8 @@ Runs at `http://localhost:3000`
 ### Entry Signal
 | Signal | Condition |
 |---|---|
-| **Enter** | Bullish trend + price within 20% of 52-week high |
-| **Wait** | Bullish but price is extended, or trend is sideways |
+| **Enter** | Bullish trend + price is 5–15% below 52-week high (healthy pullback) |
+| **Wait** | Bullish but price is within 5% of high (extended), or >15% off (weakening), or sideways |
 | **Avoid** | Bearish trend |
 
 ### Valuation (P/E based)
