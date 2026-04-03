@@ -20,9 +20,11 @@ def get_valuation(pe) -> str:
 def get_recommendation(trend, price, high_52w) -> str:
     if trend == "bearish":
         return "Avoid"
-    if price and high_52w:
+    if trend == "bullish" and price and high_52w:
         distance_from_high = (high_52w - price) / high_52w * 100
-        if trend == "bullish" and distance_from_high <= 20:
+        # 5–15% below recent high: pulled back enough to offer a better entry,
+        # but not so far that the trend may be breaking down.
+        if 5 <= distance_from_high <= 15:
             return "Enter"
     return "Wait"
 
