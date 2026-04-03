@@ -1,4 +1,17 @@
 import { useState } from 'react'
+
+function SignalPill({ label, value, color }) {
+  return (
+    <span className="flex items-center gap-1.5">
+      <span className="text-gray-500">{label}:</span>
+      <span className={`font-semibold capitalize ${color}`}>{value}</span>
+    </span>
+  )
+}
+
+function Divider() {
+  return <span className="text-gray-700 select-none">|</span>
+}
 import StockOverview from '../components/StockOverview'
 import TrendCard from '../components/TrendCard'
 import PriceChart from '../components/PriceChart'
@@ -75,6 +88,34 @@ export default function Home() {
         {/* Results */}
         {data && (
           <div className="space-y-4">
+
+            {/* Key Signal Strip */}
+            <div className="flex flex-wrap items-center gap-2 bg-gray-900 border border-gray-800 rounded-xl px-5 py-3 text-sm">
+              <SignalPill
+                label="Trend"
+                value={data.trend}
+                color={data.trend === 'bullish' ? 'text-green-400' : data.trend === 'bearish' ? 'text-red-400' : 'text-yellow-400'}
+              />
+              <Divider />
+              <SignalPill
+                label="Valuation"
+                value={data.valuation}
+                color={data.valuation === 'undervalued' ? 'text-green-400' : data.valuation === 'overvalued' ? 'text-red-400' : data.valuation === 'fair' ? 'text-blue-400' : 'text-gray-400'}
+              />
+              <Divider />
+              <SignalPill
+                label="Pullback"
+                value={data.pullback_percentage != null ? `${data.pullback_percentage > 0 ? '-' : ''}${Math.abs(data.pullback_percentage)}%` : 'N/A'}
+                color={data.pullback_percentage >= 5 && data.pullback_percentage <= 15 ? 'text-green-400' : data.pullback_percentage < 5 ? 'text-yellow-400' : 'text-red-400'}
+              />
+              <Divider />
+              <SignalPill
+                label="Recommendation"
+                value={data.recommendation}
+                color={data.recommendation === 'Enter' ? 'text-green-400' : data.recommendation === 'Avoid' ? 'text-red-400' : 'text-yellow-400'}
+              />
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="lg:col-span-2">
                 <StockOverview data={data} />
