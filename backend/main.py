@@ -36,6 +36,7 @@ def analyze_ticker(ticker: str):
             "trend": signals["trend"],
             "valuation": signals["valuation"],
             "recommendation": signals["recommendation"],
+            "reason": signals["reason"],
             "chart_data": raw["chart_data"],
         }
     except HTTPException:
