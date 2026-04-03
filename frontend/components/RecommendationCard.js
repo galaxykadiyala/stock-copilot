@@ -38,14 +38,17 @@ const valuationColor = (val) => {
   return 'text-gray-400'
 }
 
-export default function RecommendationCard({ recommendation, trend, valuation }) {
+export default function RecommendationCard({ recommendation, trend, valuation, exchange }) {
   const c = CONFIGS[recommendation] || CONFIGS.Wait
 
   return (
     <div className={`${c.colorBg} border ${c.colorBorder} rounded-xl p-6 flex flex-col h-full`}>
-      <p className="text-gray-400 text-xs font-semibold uppercase tracking-widest mb-4">
-        Entry Recommendation
-      </p>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-gray-400 text-xs font-semibold uppercase tracking-widest">Entry Recommendation</p>
+        {exchange && (
+          <span className="text-xs text-gray-500 bg-gray-800 px-2 py-0.5 rounded-full">{exchange}</span>
+        )}
+      </div>
 
       <div className="flex-1 flex flex-col items-center justify-center text-center py-4">
         <span className={`text-6xl mb-1 ${c.colorText}`}>{c.icon}</span>

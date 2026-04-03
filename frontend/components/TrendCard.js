@@ -15,7 +15,7 @@ const trendStyles = {
   sideways: { badge: 'bg-yellow-900/30 text-yellow-400 border border-yellow-800', dot: 'bg-yellow-400' },
 }
 
-export default function TrendCard({ data }) {
+export default function TrendCard({ data, currency }) {
   const { price, ma50, ma200, trend } = data
   const diff50 = pctDiff(price, ma50)
   const diff200 = pctDiff(price, ma200)
@@ -34,7 +34,7 @@ export default function TrendCard({ data }) {
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div className="bg-gray-800/60 rounded-lg p-4">
           <p className="text-gray-500 text-xs mb-1">50-Day MA</p>
-          <p className="text-white font-semibold text-lg">${ma50 ?? 'N/A'}</p>
+          <p className="text-white font-semibold text-lg">{currency}{ma50 ?? 'N/A'}</p>
           {diff50 !== null && (
             <p className={`text-xs mt-1 font-medium ${parseFloat(diff50) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {parseFloat(diff50) >= 0 ? '+' : ''}{diff50}% vs price
@@ -43,7 +43,7 @@ export default function TrendCard({ data }) {
         </div>
         <div className="bg-gray-800/60 rounded-lg p-4">
           <p className="text-gray-500 text-xs mb-1">200-Day MA</p>
-          <p className="text-white font-semibold text-lg">${ma200 ?? 'N/A'}</p>
+          <p className="text-white font-semibold text-lg">{currency}{ma200 ?? 'N/A'}</p>
           {diff200 !== null && (
             <p className={`text-xs mt-1 font-medium ${parseFloat(diff200) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
               {parseFloat(diff200) >= 0 ? '+' : ''}{diff200}% vs price

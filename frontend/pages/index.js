@@ -17,15 +17,21 @@ import TrendCard from '../components/TrendCard'
 import PriceChart from '../components/PriceChart'
 import RecommendationCard from '../components/RecommendationCard'
 
+const CURRENCY_SYMBOL = { USD: '$', INR: '₹' }
+
 export default function Home() {
   const [ticker, setTicker] = useState('')
+  const [market, setMarket] = useState('US')
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  const currencySymbol = data ? (CURRENCY_SYMBOL[data.currency] ?? data.currency) : '$'
+
   const analyze = async () => {
-    const symbol = ticker.trim().toUpperCase()
+    let symbol = ticker.trim().toUpperCase()
     if (!symbol) return
+    if (market === 'IN' && !symbol.includes('.')) symbol += '.NS'
     setLoading(true)
     setError(null)
     setData(null)
@@ -53,12 +59,20 @@ export default function Home() {
 
         {/* Search */}
         <div className="flex gap-3 mb-8">
+          <select
+            value={market}
+            onChange={(e) => setMarket(e.target.value)}
+            className="bg-gray-900 border border-gray-700 rounded-lg px-3 py-3 text-white focus:outline-none focus:border-blue-500 text-sm cursor-pointer"
+          >
+            <option value="US">🇺🇸 US</option>
+            <option value="IN">🇮🇳 India (NSE)</option>
+          </select>
           <input
             type="text"
             value={ticker}
             onChange={(e) => setTicker(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === 'Enter' && analyze()}
-            placeholder="Enter ticker symbol (e.g. NVDA, AMD, AAPL)"
+            placeholder={market === 'IN' ? 'e.g. RELIANCE, TCS, INFY' : 'e.g. NVDA, AAPL, AMD'}
             className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 text-base"
           />
           <button
@@ -118,16 +132,17 @@ export default function Home() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               <div className="lg:col-span-2">
-                <StockOverview data={data} />
+                <StockOverview data={data} currency={currencySymbol} />
               </div>
               <RecommendationCard
                 recommendation={data.recommendation}
                 trend={data.trend}
                 valuation={data.valuation}
+                exchange={data.exchange}
               />
             </div>
-            <PriceChart chartData={data.chart_data} ticker={data.ticker} />
-            <TrendCard data={data} />
+            <PriceChart chartData={data.chart_data} ticker={data.resolved_ticker} currency={currencySymbol} />
+            <TrendCard data={data} currency={currencySymbol} />
           </div>
         )}
 

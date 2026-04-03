@@ -35,6 +35,8 @@ def fetch_stock_data(ticker: str) -> dict:
     return {
         "resolved_ticker": resolved,
         "name": info.get("longName") or info.get("shortName") or resolved,
+        "currency": info.get("currency", "USD"),
+        "exchange": info.get("fullExchangeName") or info.get("exchange") or "N/A",
         "price": price,
         "high_52w": info.get("fiftyTwoWeekHigh"),
         "low_52w": info.get("fiftyTwoWeekLow"),

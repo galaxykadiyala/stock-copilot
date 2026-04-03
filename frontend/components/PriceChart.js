@@ -8,12 +8,12 @@ import {
   CartesianGrid,
 } from 'recharts'
 
-function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active, payload, label, currency }) {
   if (!active || !payload?.length) return null
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm">
       <p className="text-gray-400 text-xs mb-0.5">{label}</p>
-      <p className="text-white font-semibold">${payload[0].value.toFixed(2)}</p>
+      <p className="text-white font-semibold">{currency}{payload[0].value.toFixed(2)}</p>
     </div>
   )
 }
@@ -23,7 +23,7 @@ function formatDate(val) {
   return d.toLocaleString('default', { month: 'short', day: 'numeric' })
 }
 
-export default function PriceChart({ chartData, ticker }) {
+export default function PriceChart({ chartData, ticker, currency }) {
   if (!chartData?.length) return null
 
   const prices = chartData.map((d) => d.price)
@@ -59,10 +59,10 @@ export default function PriceChart({ chartData, ticker }) {
             tickLine={false}
             axisLine={false}
             domain={[min - pad, max + pad]}
-            tickFormatter={(v) => `$${v.toFixed(0)}`}
+            tickFormatter={(v) => `${currency}${v.toFixed(0)}`}
             width={55}
           />
-          <Tooltip content={<CustomTooltip />} />
+          <Tooltip content={<CustomTooltip currency={currency} />} />
           <Area
             type="monotone"
             dataKey="price"
