@@ -33,9 +33,11 @@ def analyze_ticker(ticker: str):
             "market_cap": raw["market_cap"],
             "ma50": round(raw["ma50"], 2) if raw["ma50"] else None,
             "ma200": round(raw["ma200"], 2) if raw["ma200"] else None,
+            "recent_high": raw["recent_high"],
             "trend": signals["trend"],
             "valuation": signals["valuation"],
             "recommendation": signals["recommendation"],
+            "pullback_percentage": signals["pullback_percentage"],
             "reason": signals["reason"],
             "chart_data": raw["chart_data"],
         }

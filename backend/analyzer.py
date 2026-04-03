@@ -17,19 +17,19 @@ def get_valuation(pe) -> str:
     return "overvalued"
 
 
-def get_recommendation(trend, price, high_52w) -> str:
+def get_recommendation(trend, price, recent_high) -> str:
     if trend == "bearish":
         return "Avoid"
-    if trend == "bullish" and price and high_52w:
-        distance_from_high = (high_52w - price) / high_52w * 100
+    if trend == "bullish" and price and recent_high:
+        pullback = (recent_high - price) / recent_high * 100
         # 5–15% below recent high: pulled back enough to offer a better entry,
         # but not so far that the trend may be breaking down.
-        if 5 <= distance_from_high <= 15:
+        if 5 <= pullback <= 15:
             return "Enter"
     return "Wait"
 
 
-def get_reason(trend, recommendation, valuation, price, ma50, ma200, high_52w) -> str:
+def get_reason(trend, recommendation, valuation, price, ma50, ma200, recent_high, pullback) -> str:
     valuation_note = {
         "undervalued": "undervalued on PE",
         "fair": "fairly valued on PE",
@@ -37,12 +37,10 @@ def get_reason(trend, recommendation, valuation, price, ma50, ma200, high_52w) -
         "unknown": "PE not available",
     }.get(valuation, "")
 
-    distance = round((high_52w - price) / high_52w * 100, 1) if high_52w else None
-
     if recommendation == "Enter":
         return (
             f"Uptrend confirmed — price above 50MA (${ma50}) and 200MA (${ma200}). "
-            f"Pulled back {distance}% from the 52-week high (${high_52w}), offering a better entry. "
+            f"Down {pullback}% from the 6-month high (${recent_high}), a healthy pullback zone. "
             f"Stock is {valuation_note}."
         )
     if recommendation == "Avoid":
@@ -52,14 +50,14 @@ def get_reason(trend, recommendation, valuation, price, ma50, ma200, high_52w) -
             f"trend risk outweighs any valuation case."
         )
     # Wait
-    if trend == "bullish" and distance is not None:
-        if distance < 5:
+    if trend == "bullish" and pullback is not None:
+        if pullback < 5:
             return (
-                f"Uptrend intact, but price is only {distance}% below the 52-week high (${high_52w}) — too extended. "
+                f"Uptrend intact, but only {pullback}% off the 6-month high (${recent_high}) — too extended for a safe entry. "
                 f"Stock is {valuation_note}. Wait for a pullback."
             )
         return (
-            f"Uptrend intact but price is {distance}% off the 52-week high (${high_52w}) — pullback may continue. "
+            f"Uptrend intact but {pullback}% off the 6-month high (${recent_high}) — pullback may still be in progress. "
             f"Stock is {valuation_note}. Hold off for now."
         )
     return (
@@ -72,11 +70,19 @@ def analyze(raw: dict) -> dict:
     price = raw["price"]
     ma50 = round(raw["ma50"], 2) if raw["ma50"] else None
     ma200 = round(raw["ma200"], 2) if raw["ma200"] else None
-    high_52w = round(raw["high_52w"], 2) if raw["high_52w"] else None
+    recent_high = raw["recent_high"]
+
+    pullback = round((recent_high - price) / recent_high * 100, 1) if recent_high else None
 
     trend = get_trend(price, ma50, ma200)
     valuation = get_valuation(raw["pe"])
-    recommendation = get_recommendation(trend, price, high_52w)
-    reason = get_reason(trend, recommendation, valuation, price, ma50, ma200, high_52w)
+    recommendation = get_recommendation(trend, price, recent_high)
+    reason = get_reason(trend, recommendation, valuation, price, ma50, ma200, recent_high, pullback)
 
-    return {"trend": trend, "valuation": valuation, "recommendation": recommendation, "reason": reason}
+    return {
+        "trend": trend,
+        "valuation": valuation,
+        "recommendation": recommendation,
+        "reason": reason,
+        "pullback_percentage": pullback,
+    }
