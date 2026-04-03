@@ -17,6 +17,18 @@ def get_valuation(pe) -> str:
     return "overvalued"
 
 
+def get_buy_zone(recent_high, ma50) -> tuple:
+    if not recent_high:
+        return None, None
+    # Entry zone: 5–15% below recent high
+    zone_high = round(recent_high * 0.95, 2)
+    zone_low = round(recent_high * 0.85, 2)
+    # If ma50 sits inside the zone, use it as the support floor (stronger level)
+    if ma50 and zone_low <= ma50 <= zone_high:
+        zone_low = round(ma50, 2)
+    return zone_low, zone_high
+
+
 def get_recommendation(trend, price, recent_high) -> str:
     if trend == "bearish":
         return "Avoid"
@@ -79,10 +91,14 @@ def analyze(raw: dict) -> dict:
     recommendation = get_recommendation(trend, price, recent_high)
     reason = get_reason(trend, recommendation, valuation, price, ma50, ma200, recent_high, pullback)
 
+    buy_zone_low, buy_zone_high = get_buy_zone(recent_high, ma50)
+
     return {
         "trend": trend,
         "valuation": valuation,
         "recommendation": recommendation,
         "reason": reason,
         "pullback_percentage": pullback,
+        "buy_zone_low": buy_zone_low,
+        "buy_zone_high": buy_zone_high,
     }

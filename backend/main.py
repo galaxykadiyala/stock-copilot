@@ -34,6 +34,8 @@ def analyze_ticker(ticker: str):
             "ma50": round(raw["ma50"], 2) if raw["ma50"] else None,
             "ma200": round(raw["ma200"], 2) if raw["ma200"] else None,
             "recent_high": raw["recent_high"],
+            "buy_zone_low": signals["buy_zone_low"],
+            "buy_zone_high": signals["buy_zone_high"],
             "trend": signals["trend"],
             "valuation": signals["valuation"],
             "recommendation": signals["recommendation"],
