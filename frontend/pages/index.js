@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Link from 'next/link'
 import StockOverview from '../components/StockOverview'
 import TrendCard from '../components/TrendCard'
 import PriceChart from '../components/PriceChart'
@@ -66,9 +67,14 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-4 py-10">
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Stock Copilot</h1>
-          <p className="text-gray-400 mt-1 text-sm">Rule-based stock analysis for smarter entry decisions</p>
+        <div className="flex items-start justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Stock Copilot</h1>
+            <p className="text-gray-400 mt-1 text-sm">Rule-based stock analysis for smarter entry decisions</p>
+          </div>
+          <Link href="/scanner" className="text-gray-400 hover:text-white text-sm transition-colors mt-1">
+            Scanner →
+          </Link>
         </div>
 
         {/* Search */}
@@ -157,6 +163,18 @@ export default function Home() {
                 label="Signal"
                 value={data.recommendation}
                 color={data.dip_type === 'strong' ? 'text-green-400' : data.dip_type === 'danger' ? 'text-red-400' : 'text-yellow-400'}
+              />
+              <Divider />
+              <SignalPill
+                label="Market"
+                value={data.market_trend ?? 'unknown'}
+                color={data.market_trend === 'bullish' ? 'text-green-400' : data.market_trend === 'bearish' ? 'text-red-400' : 'text-yellow-400'}
+              />
+              <Divider />
+              <SignalPill
+                label="Score"
+                value={`${data.score} · ${data.score_label}`}
+                color={data.score_label === 'High Conviction' ? 'text-green-400' : data.score_label === 'Watch' ? 'text-yellow-400' : 'text-red-400'}
               />
 
               {/* Add to Watchlist */}

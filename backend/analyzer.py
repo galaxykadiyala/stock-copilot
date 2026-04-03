@@ -29,13 +29,40 @@ def get_dip_type(trend, pullback) -> str:
     return "danger"
 
 
-def get_recommendation(dip_type) -> str:
-    return {
+def get_recommendation(dip_type, market_trend: str = "bullish") -> str:
+    base = {
         "strong":  "Consider Entering",
         "weak":    "Wait for Deeper Pullback",
         "danger":  "Avoid",
         "unknown": "Insufficient Data",
     }.get(dip_type, "Avoid")
+
+    if base == "Consider Entering":
+        if market_trend == "bearish":
+            return "Avoid"
+        if market_trend == "sideways":
+            return "Wait"
+
+    return base
+
+
+def compute_score(trend: str, dip_type: str, valuation: str, market_trend: str) -> tuple:
+    score = 0
+    score += {"bullish": 30, "sideways": 15, "bearish": 0}.get(trend, 0)
+    score += {"strong": 30, "weak": 20, "danger": 0, "unknown": 5}.get(dip_type, 0)
+    score += {"undervalued": 20, "fair": 12, "overvalued": 5, "unknown": 8}.get(valuation, 0)
+    score += {"bullish": 20, "sideways": 10, "bearish": 0}.get(market_trend, 10)
+
+    score = max(0, min(100, score))
+
+    if score >= 80:
+        label = "High Conviction"
+    elif score >= 60:
+        label = "Watch"
+    else:
+        label = "Avoid"
+
+    return score, label
 
 
 def get_buy_zone(recent_high, ma50) -> tuple:
@@ -83,7 +110,7 @@ def get_reason(trend, dip_type, recommendation, valuation, price, ma50, ma200, r
     return f"Insufficient data to assess trend or pullback. Stock is {valuation_note}."
 
 
-def analyze(raw: dict) -> dict:
+def analyze(raw: dict, market_trend: str = "bullish") -> dict:
     price = raw["price"]
     ma50 = round(raw["ma50"], 2) if raw["ma50"] else None
     ma200 = round(raw["ma200"], 2) if raw["ma200"] else None
@@ -94,9 +121,10 @@ def analyze(raw: dict) -> dict:
     trend = get_trend(price, ma50, ma200)
     valuation = get_valuation(raw["pe"])
     dip_type = get_dip_type(trend, pullback)
-    recommendation = get_recommendation(dip_type)
+    recommendation = get_recommendation(dip_type, market_trend)
     reason = get_reason(trend, dip_type, recommendation, valuation, price, ma50, ma200, recent_high, pullback)
     buy_zone_low, buy_zone_high = get_buy_zone(recent_high, ma50)
+    score, score_label = compute_score(trend, dip_type, valuation, market_trend)
 
     return {
         "trend": trend,
@@ -107,4 +135,6 @@ def analyze(raw: dict) -> dict:
         "pullback_percentage": pullback,
         "buy_zone_low": buy_zone_low,
         "buy_zone_high": buy_zone_high,
+        "score": score,
+        "score_label": score_label,
     }
