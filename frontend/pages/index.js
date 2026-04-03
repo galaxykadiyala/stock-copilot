@@ -16,6 +16,7 @@ import StockOverview from '../components/StockOverview'
 import TrendCard from '../components/TrendCard'
 import PriceChart from '../components/PriceChart'
 import RecommendationCard from '../components/RecommendationCard'
+import DipSignalCard from '../components/DipSignalCard'
 
 const CURRENCY_SYMBOL = { USD: '$', INR: '₹' }
 
@@ -103,6 +104,16 @@ export default function Home() {
         {data && (
           <div className="space-y-4">
 
+            {/* Strong Dip Alert Banner */}
+            {data.dip_type === 'strong' && (
+              <div className="flex items-center gap-3 bg-green-950 border border-green-700 rounded-xl px-5 py-3">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
+                <p className="text-green-300 text-sm font-medium">
+                  {data.ticker} is in a strong dip zone — {data.pullback_percentage}% below the 6-month high. Potential entry opportunity.
+                </p>
+              </div>
+            )}
+
             {/* Key Signal Strip */}
             <div className="flex flex-wrap items-center gap-2 bg-gray-900 border border-gray-800 rounded-xl px-5 py-3 text-sm">
               <SignalPill
@@ -148,7 +159,15 @@ export default function Home() {
               />
             </div>
             <PriceChart chartData={data.chart_data} ticker={data.resolved_ticker} currency={currencySymbol} />
-            <TrendCard data={data} currency={currencySymbol} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <TrendCard data={data} currency={currencySymbol} />
+              <DipSignalCard
+                dipType={data.dip_type}
+                pullback={data.pullback_percentage}
+                recentHigh={data.recent_high}
+                currency={currencySymbol}
+              />
+            </div>
           </div>
         )}
 
