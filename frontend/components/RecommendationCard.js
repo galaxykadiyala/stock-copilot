@@ -1,19 +1,19 @@
 const CONFIGS = {
-  Enter: {
-    label: 'Enter',
+  'Consider Entering': {
+    label: 'Consider Entering',
     icon: '↑',
     colorText: 'text-green-400',
     colorBg: 'bg-green-950',
     colorBorder: 'border-green-800',
-    desc: 'Bullish trend with price in a favorable zone. Conditions support entry.',
+    desc: 'Strong dip in a bullish trend — pullback is in the ideal entry zone.',
   },
-  Wait: {
+  'Wait for Deeper Pullback': {
     label: 'Wait',
     icon: '→',
     colorText: 'text-yellow-400',
     colorBg: 'bg-yellow-950',
     colorBorder: 'border-yellow-800',
-    desc: 'Mixed signals or price is extended. Watch for a clearer setup.',
+    desc: 'Uptrend intact but pullback is too shallow. Wait for the 8–20% dip zone.',
   },
   Avoid: {
     label: 'Avoid',

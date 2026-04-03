@@ -41,6 +41,7 @@ def analyze_ticker(ticker: str):
             "buy_zone_high": signals["buy_zone_high"],
             "trend": signals["trend"],
             "valuation": signals["valuation"],
+            "dip_type": signals["dip_type"],
             "recommendation": signals["recommendation"],
             "pullback_percentage": signals["pullback_percentage"],
             "reason": signals["reason"],

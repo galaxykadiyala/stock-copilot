@@ -119,14 +119,20 @@ export default function Home() {
               <Divider />
               <SignalPill
                 label="Pullback"
-                value={data.pullback_percentage != null ? `${data.pullback_percentage > 0 ? '-' : ''}${Math.abs(data.pullback_percentage)}%` : 'N/A'}
-                color={data.pullback_percentage >= 5 && data.pullback_percentage <= 15 ? 'text-green-400' : data.pullback_percentage < 5 ? 'text-yellow-400' : 'text-red-400'}
+                value={data.pullback_percentage != null ? `-${Math.abs(data.pullback_percentage)}%` : 'N/A'}
+                color={data.dip_type === 'strong' ? 'text-green-400' : data.dip_type === 'weak' ? 'text-yellow-400' : 'text-red-400'}
               />
               <Divider />
               <SignalPill
-                label="Recommendation"
+                label="Dip"
+                value={data.dip_type}
+                color={data.dip_type === 'strong' ? 'text-green-400' : data.dip_type === 'weak' ? 'text-yellow-400' : 'text-red-400'}
+              />
+              <Divider />
+              <SignalPill
+                label="Signal"
                 value={data.recommendation}
-                color={data.recommendation === 'Enter' ? 'text-green-400' : data.recommendation === 'Avoid' ? 'text-red-400' : 'text-yellow-400'}
+                color={data.dip_type === 'strong' ? 'text-green-400' : data.dip_type === 'danger' ? 'text-red-400' : 'text-yellow-400'}
               />
             </div>
 

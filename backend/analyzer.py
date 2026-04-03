@@ -17,65 +17,70 @@ def get_valuation(pe) -> str:
     return "overvalued"
 
 
+def get_dip_type(trend, pullback) -> str:
+    if pullback is None:
+        return "unknown"
+    if trend == "bearish" or pullback > 25:
+        return "danger"
+    if trend == "bullish" and 8 <= pullback <= 20:
+        return "strong"
+    if trend == "bullish" and pullback < 8:
+        return "weak"
+    return "danger"
+
+
+def get_recommendation(dip_type) -> str:
+    return {
+        "strong":  "Consider Entering",
+        "weak":    "Wait for Deeper Pullback",
+        "danger":  "Avoid",
+        "unknown": "Insufficient Data",
+    }.get(dip_type, "Avoid")
+
+
 def get_buy_zone(recent_high, ma50) -> tuple:
     if not recent_high:
         return None, None
-    # Entry zone: 5–15% below recent high
-    zone_high = round(recent_high * 0.95, 2)
-    zone_low = round(recent_high * 0.85, 2)
-    # If ma50 sits inside the zone, use it as the support floor (stronger level)
+    # Entry zone: 8–20% below recent high (aligned with strong dip range)
+    zone_high = round(recent_high * 0.92, 2)
+    zone_low = round(recent_high * 0.80, 2)
+    # If ma50 sits inside the zone, use it as the support floor
     if ma50 and zone_low <= ma50 <= zone_high:
         zone_low = round(ma50, 2)
     return zone_low, zone_high
 
 
-def get_recommendation(trend, price, recent_high) -> str:
-    if trend == "bearish":
-        return "Avoid"
-    if trend == "bullish" and price and recent_high:
-        pullback = (recent_high - price) / recent_high * 100
-        # 5–15% below recent high: pulled back enough to offer a better entry,
-        # but not so far that the trend may be breaking down.
-        if 5 <= pullback <= 15:
-            return "Enter"
-    return "Wait"
-
-
-def get_reason(trend, recommendation, valuation, price, ma50, ma200, recent_high, pullback) -> str:
+def get_reason(trend, dip_type, recommendation, valuation, price, ma50, ma200, recent_high, pullback) -> str:
     valuation_note = {
         "undervalued": "undervalued on PE",
-        "fair": "fairly valued on PE",
-        "overvalued": "overvalued on PE",
-        "unknown": "PE not available",
+        "fair":        "fairly valued on PE",
+        "overvalued":  "overvalued on PE",
+        "unknown":     "PE not available",
     }.get(valuation, "")
 
-    if recommendation == "Enter":
+    if dip_type == "strong":
         return (
-            f"Uptrend confirmed — price above 50MA (${ma50}) and 200MA (${ma200}). "
-            f"Down {pullback}% from the 6-month high (${recent_high}), a healthy pullback zone. "
+            f"Uptrend intact — price above 50MA ({ma50}) and 200MA ({ma200}). "
+            f"Pulled back {pullback}% from the 6-month high ({recent_high}), a strong dip within the trend. "
             f"Stock is {valuation_note}."
         )
-    if recommendation == "Avoid":
+    if dip_type == "weak":
         return (
-            f"Downtrend in effect — price below 50MA (${ma50}) and 200MA (${ma200}). "
-            f"{'Stock is ' + valuation_note + ', but ' if valuation != 'unknown' else ''}"
-            f"trend risk outweighs any valuation case."
+            f"Uptrend intact, but only {pullback}% off the 6-month high ({recent_high}) — not a deep enough pullback. "
+            f"Stock is {valuation_note}. Wait for the 8–20% zone before entering."
         )
-    # Wait
-    if trend == "bullish" and pullback is not None:
-        if pullback < 5:
+    if dip_type == "danger":
+        if trend == "bearish":
             return (
-                f"Uptrend intact, but only {pullback}% off the 6-month high (${recent_high}) — too extended for a safe entry. "
-                f"Stock is {valuation_note}. Wait for a pullback."
+                f"Downtrend in effect — price below 50MA ({ma50}) and 200MA ({ma200}). "
+                f"{'Stock is ' + valuation_note + ', but ' if valuation != 'unknown' else ''}"
+                f"trend risk outweighs any valuation case."
             )
         return (
-            f"Uptrend intact but {pullback}% off the 6-month high (${recent_high}) — pullback may still be in progress. "
-            f"Stock is {valuation_note}. Hold off for now."
+            f"Pullback of {pullback}% exceeds 25% — potential trend breakdown, not a healthy dip. "
+            f"Stock is {valuation_note}. Wait for stabilisation before re-evaluating."
         )
-    return (
-        f"Price (${price}) is between 50MA (${ma50}) and 200MA (${ma200}) — no clear trend. "
-        f"Stock is {valuation_note}. Wait for momentum to establish."
-    )
+    return f"Insufficient data to assess trend or pullback. Stock is {valuation_note}."
 
 
 def analyze(raw: dict) -> dict:
@@ -88,14 +93,15 @@ def analyze(raw: dict) -> dict:
 
     trend = get_trend(price, ma50, ma200)
     valuation = get_valuation(raw["pe"])
-    recommendation = get_recommendation(trend, price, recent_high)
-    reason = get_reason(trend, recommendation, valuation, price, ma50, ma200, recent_high, pullback)
-
+    dip_type = get_dip_type(trend, pullback)
+    recommendation = get_recommendation(dip_type)
+    reason = get_reason(trend, dip_type, recommendation, valuation, price, ma50, ma200, recent_high, pullback)
     buy_zone_low, buy_zone_high = get_buy_zone(recent_high, ma50)
 
     return {
         "trend": trend,
         "valuation": valuation,
+        "dip_type": dip_type,
         "recommendation": recommendation,
         "reason": reason,
         "pullback_percentage": pullback,
