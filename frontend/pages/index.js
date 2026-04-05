@@ -72,9 +72,14 @@ export default function Home() {
             <h1 className="text-3xl font-bold tracking-tight">Stock Copilot</h1>
             <p className="text-gray-400 mt-1 text-sm">Rule-based stock analysis for smarter entry decisions</p>
           </div>
-          <Link href="/scanner" className="text-gray-400 hover:text-white text-sm transition-colors mt-1">
-            Scanner →
-          </Link>
+          <div className="flex gap-4 mt-1">
+            <Link href="/scanner" className="text-gray-400 hover:text-white text-sm transition-colors">
+              Scanner →
+            </Link>
+            <Link href="/portfolio" className="text-blue-400 hover:text-blue-300 text-sm transition-colors font-medium">
+              Portfolio PRO →
+            </Link>
+          </div>
         </div>
 
         {/* Search */}

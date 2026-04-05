@@ -68,9 +68,14 @@ export default function Scanner() {
               Scan US + India stocks for dip opportunities
             </p>
           </div>
-          <Link href="/" className="text-gray-400 hover:text-white text-sm transition-colors mt-1">
-            ← Copilot
-          </Link>
+          <div className="flex gap-4 mt-1">
+            <Link href="/" className="text-gray-400 hover:text-white text-sm transition-colors">
+              ← Copilot
+            </Link>
+            <Link href="/portfolio" className="text-blue-400 hover:text-blue-300 text-sm transition-colors font-medium">
+              Portfolio PRO →
+            </Link>
+          </div>
         </div>
 
         {/* Controls */}
