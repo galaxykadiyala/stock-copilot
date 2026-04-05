@@ -39,7 +39,7 @@ const valuationColor = (val) => {
 }
 
 export default function RecommendationCard({ recommendation, trend, valuation, exchange }) {
-  const c = CONFIGS[recommendation] || CONFIGS.Wait
+  const c = CONFIGS[recommendation] || CONFIGS['Wait for Deeper Pullback']
 
   return (
     <div className={`${c.colorBg} border ${c.colorBorder} rounded-xl p-6 flex flex-col h-full`}>
